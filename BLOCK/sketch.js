@@ -87,17 +87,9 @@ function createTestData() {
 }
 
 function draw() {
-  // Semi-transparent background
-  background(0, 10);
+  // Use clear() instead of background() to make canvas transparent
+  clear();
   
-  if (points.length === 0) {
-    // Show loading/error message
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text("Loading data... or no data available", width/2, height/2);
-    return;
-  }
-
   // advance time
   t += timeSpeed;
   if (t > maxTime) t = 0;
@@ -125,17 +117,18 @@ function draw() {
       labels.push({ x: cx, y: cy, txt: labelText, a: 255 });
     }
 
-    // Make circle more visible
-    fill(255, 0, 0, 200);
-    stroke(255);
-    strokeWeight(2);
-    circle(cx, cy, 20);
+    // Draw the tracking dot - make it visible against the video
+    fill(255, 0, 0, 200); // Red with opacity
+    stroke(255, 255, 255); // White border
+    strokeWeight(3);
+    circle(cx, cy, 24); // Larger dot for visibility
 
     drawAndFadeLabels();
   } else {
     drawAndFadeLabels();
   }
 }
+
 
 function drawAndFadeLabels() {
   for (let i = labels.length - 1; i >= 0; i--) {
