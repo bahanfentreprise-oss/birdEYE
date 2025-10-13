@@ -1,28 +1,60 @@
-
-
 let table;
 let points = [];
-let t = 0;            // animation clock (same units as CSV time)
+let t = 0;
 let maxTime = 0;
-let labels = [];      // stores {x,y,txt,a}
+let labels = [];
+let dataLoaded = false;
 
 // tweakable params
-let timeSpeed = 0.02; // how much t advances each frame
+let timeSpeed = 0.02;
 let labelInterval = 3;
 let labelFadeStep = 2;
 
 function preload() {
-  table = loadTable("DataEye.csv", "csv", "header");
+  // Try different path approaches
+  table = loadTable("BLOCK/DataEye.csv", "csv", "header", 
+    function() {
+      console.log("CSV loaded successfully!");
+      dataLoaded = true;
+    },
+    function(error) {
+      console.error("Error loading CSV:", error);
+      // Try alternative paths
+      table = loadTable("./BLOCK/DataEye.csv", "csv", "header", 
+        function() {
+          console.log("CSV loaded with ./ path");
+          dataLoaded = true;
+        },
+        function(error2) {
+          console.error("Also failed with ./ path:", error2);
+          dataLoaded = false;
+        }
+      );
+    }
+  );
 }
 
 function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent('canvas-container')
-  
+  canvas.parent('canvas-container');
   textFont('monospace');
   textSize(12);
   noStroke();
 
+  // Wait a bit for data to load
+  setTimeout(processData, 100);
+}
+
+function processData() {
+  if (!table || !dataLoaded) {
+    console.error("Table not loaded yet");
+    // Try to create dummy data for testing
+    createTestData();
+    return;
+  }
+
+  console.log("Table rows:", table.getRowCount());
+  console.log("Columns:", table.columns);
   
   for (let r = 0; r < table.getRowCount(); r++) {
     let times = float(table.getString(r, "times")); 
@@ -30,17 +62,41 @@ function setup() {
     let y = float(table.getString(r, "y")); 
     points.push({ times, x, y });
   }
+  
   if (points.length > 0) {
     maxTime = points[points.length - 1].times;
-    console.log('Loaded ${points.lenght} points, maxTime: ${maxTime}');
+    console.log(`Loaded ${points.length} points, maxTime: ${maxTime}`);
   } else {
-    console.error("No points loaded from CSV!");
-    }
+    console.error("No points loaded, using test data");
+    createTestData();
+  }
+}
 
+function createTestData() {
+  // Create some test data to verify the animation works
+  points = [];
+  for (let i = 0; i < 100; i++) {
+    points.push({
+      times: i * 0.1,
+      x: 0.1 + 0.8 * noise(i * 0.1),
+      y: 0.1 + 0.8 * noise(i * 0.1 + 1000)
+    });
+  }
+  maxTime = points[points.length - 1].times;
+  console.log("Using test data with", points.length, "points");
 }
 
 function draw() {
-  background(0, 10);
+  // Semi-transparent background
+  background(0, 50);
+  
+  if (points.length === 0) {
+    // Show loading/error message
+    fill(255);
+    textAlign(CENTER, CENTER);
+    text("Loading data... or no data available", width/2, height/2);
+    return;
+  }
 
   // advance time
   t += timeSpeed;
@@ -69,8 +125,9 @@ function draw() {
       labels.push({ x: cx, y: cy, txt: labelText, a: 255 });
     }
 
+    // Make circle more visible
     fill(255, 0, 0, 200);
-    noStroke(255, 255, 255);
+    stroke(255);
     strokeWeight(2);
     circle(cx, cy, 20);
 
@@ -80,19 +137,19 @@ function draw() {
   }
 }
 
-// draw labels and fade
 function drawAndFadeLabels() {
   for (let i = labels.length - 1; i >= 0; i--) {
     let L = labels[i];
-    fill(255, 100, 100);
+    fill(255, 255, 255, L.a);
     noStroke();
     textAlign(LEFT, CENTER);
-    text(L.txt, L.x + 12, L.y - 12);
+    text(L.txt, L.x + 15, L.y - 15);
 
     L.a -= labelFadeStep;
     if (L.a <= 0) labels.splice(i, 1);
   }
 }
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
