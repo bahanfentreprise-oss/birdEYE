@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>birdEYE</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- p5.js core -->
+    <script src="p5/p5.min.js"></script>
+    <!-- p5.sound if needed -->
+    <script src="p5/p5.sound.min.js"></script>
+  </head>
+
+  <body>
+    <div id="container">
+      <!-- The video background -->
+      <video id="background-video" autoplay muted loop playsinline>
+        <source src="bird.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <!-- p5 canvas overlay -->
+      <div id="overlay"></div>
+    </div>
+
+    <!-- Your sketch -->
+    <script src="sketch.js"></script>
+  </body>
+</html>
