@@ -16,7 +16,9 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 600);
+  let canvas = createCanvas(windowWidth, windowHeight);
+  canvas.parent('canvas-container')
+  
   textFont('monospace');
   textSize(12);
   noStroke();
@@ -24,18 +26,21 @@ function setup() {
   
   for (let r = 0; r < table.getRowCount(); r++) {
     let times = float(table.getString(r, "times")); 
-
     let x = float(table.getString(r, "x")); 
     let y = float(table.getString(r, "y")); 
     points.push({ times, x, y });
   }
   if (points.length > 0) {
     maxTime = points[points.length - 1].times;
-  }
+    console.log('Loaded ${points.lenght} points, maxTime: ${maxTime}');
+  } else {
+    console.error("No points loaded from CSV!");
+    }
+
 }
 
 function draw() {
-  background(0, 75);
+  background(0, 10);
 
   // advance time
   t += timeSpeed;
@@ -64,9 +69,10 @@ function draw() {
       labels.push({ x: cx, y: cy, txt: labelText, a: 255 });
     }
 
-    fill(255, 100, 100);
-    noStroke();
-    circle(cx, cy, 15);
+    fill(255, 0, 0, 200);
+    noStroke(255, 255, 255);
+    strokeWeight(2);
+    circle(cx, cy, 20);
 
     drawAndFadeLabels();
   } else {
@@ -86,4 +92,7 @@ function drawAndFadeLabels() {
     L.a -= labelFadeStep;
     if (L.a <= 0) labels.splice(i, 1);
   }
+}
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
