@@ -6,24 +6,41 @@
     <title>birdEYE</title>
     <link rel="stylesheet" href="BLOCK/style.css" />
 
-    <!-- Corrected p5.js paths -->
     <script src="BLOCK/p5.js"></script>
-    <script src="BLOCK/p5.sound.min.js"></script>
+    <!-- Remove p5.sound if you don't need audio -->
+    <!-- <script src="BLOCK/p5.sound.min.js"></script> -->
   </head>
 
   <body>
     <div id="container">
-      <!-- The video background -->
-      <video id="background-video" autoplay muted loop playsinline>
-        <source src="BLOCK/bird.mp4" type="video/mp4" />
+      <!-- Video with better error handling -->
+      <video id="background-video" autoplay muted loop playsinline onerror="videoError()">
+        <source src="BLOCK/bird.mp4" type="video/mp4">
+        <source src="BLOCK/bird.webm" type="video/webm"> <!-- Alternative format -->
         Your browser does not support the video tag.
       </video>
 
-      <!-- p5 canvas will be created here -->
+      <!-- Canvas container -->
       <div id="canvas-container"></div>
+      
+      <!-- Fallback background -->
+      <div id="fallback-bg" style="display:none;"></div>
     </div>
 
-    <!-- Your sketch -->
+    <script>
+      function videoError() {
+        console.error("Video failed to load");
+        document.getElementById('fallback-bg').style.display = 'block';
+        document.getElementById('fallback-bg').style.background = 'linear-gradient(45deg, #000, #333)';
+        document.getElementById('fallback-bg').style.position = 'absolute';
+        document.getElementById('fallback-bg').style.top = '0';
+        document.getElementById('fallback-bg').style.left = '0';
+        document.getElementById('fallback-bg').style.width = '100%';
+        document.getElementById('fallback-bg').style.height = '100%';
+        document.getElementById('fallback-bg').style.zIndex = '0';
+      }
+    </script>
+
     <script src="BLOCK/sketch.js"></script>
   </body>
 </html>
