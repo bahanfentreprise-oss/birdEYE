@@ -88,7 +88,7 @@ function createTestData() {
 
 function draw() {
   // Semi-transparent background
-  background(0, 50);
+  background(0, 10);
   
   if (points.length === 0) {
     // Show loading/error message
