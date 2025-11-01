@@ -41,7 +41,7 @@ function setup() {
   videoStartTime = millis();
 
   let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent('overlay'); // ✅ attach to overlay div in index.html
+  canvas.parent('canvas-container'); // ✅ attach to overlay div in index.html
   textFont('monospace');
   textSize(12);
   noStroke();
