@@ -38,7 +38,7 @@ function preload() {
 
 function setup() {
   
-  framerate(videoFrameRate);
+  frameRate(videoFrameRate);
   videoStartTime = millis();
     
   let canvas = createCanvas(windowWidth, windowHeight);
