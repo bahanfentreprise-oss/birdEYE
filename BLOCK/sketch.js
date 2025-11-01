@@ -6,7 +6,7 @@ let labels = [];
 let dataLoaded = false;
 
 // tweakable params
-let timeSpeed = 0.02;
+let timeSpeed = 0.01;
 let labelInterval = 3;
 let labelFadeStep = 2;
 
