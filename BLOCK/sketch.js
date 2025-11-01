@@ -14,7 +14,7 @@ let labelFadeStep = 2;
 
 function preload() {
   // Try different path approaches
-  table = loadTable("BLOCK/DataEye.csv", "csv", "header", 
+  table = loadTable("BLOCK/DataEye.csv", "csv", "header",
     function() {
       console.log("CSV loaded successfully!");
       dataLoaded = true;
@@ -22,7 +22,7 @@ function preload() {
     function(error) {
       console.error("Error loading CSV:", error);
       // Try alternative paths
-      table = loadTable("./BLOCK/DataEye.csv", "csv", "header", 
+      table = loadTable("./BLOCK/DataEye.csv", "csv", "header",
         function() {
           console.log("CSV loaded with ./ path");
           dataLoaded = true;
@@ -37,12 +37,11 @@ function preload() {
 }
 
 function setup() {
-  
   frameRate(videoFrameRate);
   videoStartTime = millis();
-    
+
   let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent('canvas-container');
+  canvas.parent('overlay'); // ✅ attach to overlay div in index.html
   textFont('monospace');
   textSize(12);
   noStroke();
@@ -54,21 +53,20 @@ function setup() {
 function processData() {
   if (!table || !dataLoaded) {
     console.error("Table not loaded yet");
-    // Try to create dummy data for testing
     createTestData();
     return;
   }
 
   console.log("Table rows:", table.getRowCount());
   console.log("Columns:", table.columns);
-  
+
   for (let r = 0; r < table.getRowCount(); r++) {
-    let times = float(table.getString(r, "times")); 
-    let x = float(table.getString(r, "x")); 
-    let y = float(table.getString(r, "y")); 
+    let times = float(table.getString(r, "times"));
+    let x = float(table.getString(r, "x"));
+    let y = float(table.getString(r, "y"));
     points.push({ times, x, y });
   }
-  
+
   if (points.length > 0) {
     maxTime = points[points.length - 1].times;
     console.log(`Loaded ${points.length} points, maxTime: ${maxTime}`);
@@ -93,21 +91,25 @@ function createTestData() {
 }
 
 function draw() {
-  // Use clear() instead of background() to make canvas transparent
-  clear();
-  
-  // advance time
-  // advance time based on real elapsed time synced to video frame rate
-  let elapsedSeconds = (millis() - videoStartTime) / 1000.0;
-  t = elapsedSeconds; 
-  if (t > maxTime) {
-  // Loop if the video loops
-  videoStartTime = millis();
-  t = 0;
-}
-  if (t > maxTime) t = 0;
+  clear(); // transparent background
 
-  // find interpolation pair p1,p2 for current t
+  // 🔧 Sync animation to actual video time if available
+  let vid = document.getElementById("background-video");
+  if (vid && !isNaN(vid.currentTime)) {
+    t = vid.currentTime;
+  } else {
+    // fallback to internal timer
+    let elapsedSeconds = (millis() - videoStartTime) / 1000.0;
+    t = elapsedSeconds;
+  }
+
+  if (t > maxTime) {
+    // Loop if video loops
+    videoStartTime = millis();
+    t = 0;
+  }
+
+  // find interpolation pair p1, p2 for current t
   let p1 = null, p2 = null;
   for (let i = 0; i < points.length - 1; i++) {
     if (t >= points[i].times && t <= points[i + 1].times) {
@@ -130,18 +132,17 @@ function draw() {
       labels.push({ x: cx, y: cy, txt: labelText, a: 255 });
     }
 
-    // Draw the tracking dot - make it visible against the video
-    fill(255, 0, 0, 200); // Red with opacity
-    stroke(255, 255, 255); // White border
+    // Draw the tracking dot (visible against the video)
+    fill(255, 0, 0, 200);     // Red with opacity
+    stroke(255, 255, 255);    // White border
     strokeWeight(3);
-    circle(cx, cy, 24); // Larger dot for visibility
+    circle(cx, cy, 24);
 
     drawAndFadeLabels();
   } else {
     drawAndFadeLabels();
   }
 }
-
 
 function drawAndFadeLabels() {
   for (let i = labels.length - 1; i >= 0; i--) {
