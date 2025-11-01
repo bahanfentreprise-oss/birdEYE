@@ -4,6 +4,8 @@ let t = 0;
 let maxTime = 0;
 let labels = [];
 let dataLoaded = false;
+let videoStartTime;
+let videoFrameRate = 25;
 
 // tweakable params
 let timeSpeed = 0.01;
@@ -35,6 +37,10 @@ function preload() {
 }
 
 function setup() {
+  
+  framerate(videoFrameRate);
+  videoStartTime = millis();
+    
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent('canvas-container');
   textFont('monospace');
@@ -91,7 +97,14 @@ function draw() {
   clear();
   
   // advance time
-  t += timeSpeed;
+  // advance time based on real elapsed time synced to video frame rate
+  let elapsedSeconds = (millis() - videoStartTime) / 1000.0;
+  t = elapsedSeconds; 
+  if (t > maxTime) {
+  // Loop if the video loops
+  videoStartTime = millis();
+  t = 0;
+}
   if (t > maxTime) t = 0;
 
   // find interpolation pair p1,p2 for current t
